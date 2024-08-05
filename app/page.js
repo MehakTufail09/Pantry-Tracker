@@ -21,9 +21,11 @@ export default function Welcome() {
 		>
 			<Typography variant="h2">Welcome to Pantry Tracker</Typography>
 			<Typography variant="h5">
-				Join us today and take control of your pantry inventory!"
+				Join us today and take control of your pantry inventory!&quot;
 			</Typography>
-			<Typography variant="h5">"Stay Stocked, Stay Prepared."</Typography>
+			<Typography variant="h5">
+				&quot;tay Stocked, Stay Prepared.&quot;
+			</Typography>
 			<Button
 				variant="contained"
 				onClick={() => router.push("/Signup")}

@@ -105,7 +105,7 @@ export default function SignIn() {
 					Sign In
 				</Button>
 				<Typography>
-					Don't have an account?
+					Don&apos;t have an account?
 					<Button
 						variant="plain"
 						sx={{ color: "lightblue", textDecoration: "underline" }}
