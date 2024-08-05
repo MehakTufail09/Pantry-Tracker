@@ -24,7 +24,7 @@ export default function Welcome() {
 				Join us today and take control of your pantry inventory!&quot;
 			</Typography>
 			<Typography variant="h5">
-				&quot;tay Stocked, Stay Prepared.&quot;
+				&quot;Stay Stocked, Stay Prepared.&quot;
 			</Typography>
 			<Button
 				variant="contained"
