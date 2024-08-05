@@ -24,6 +24,8 @@ import {
 	Typography,
 	Stack,
 	Button,
+	theme,
+	breakpoints,
 } from "@mui/material";
 
 import ProtectedRoute from "../protectedRoute";
@@ -133,6 +135,7 @@ export default function Profile() {
 				alignItems="center"
 				bgcolor="#021526"
 				color="white"
+				padding="16px"
 			>
 				<Button
 					variant="contained"
@@ -165,23 +168,62 @@ export default function Profile() {
 
 				<Modal open={open} onClose={handleClose}>
 					<Box
-						position="absolute"
-						top="10%"
+						display="flex"
+						position="fixed"
+						top="15%"
 						left="30%"
-						width="600px"
-						height="80vh"
+						maxWidth="600px"
+						//height="80vh"
 						bgcolor="#092635"
 						color="white"
 						border="2px solid white"
 						boxShadow={24}
+						width="90%"
+						transform="translate (-50%, -50%)"
 						p={4}
-						display="flex"
+						padding="16px"
 						flexDirection="column"
-						gap={5}
-						sx={{ transform: "translate (-50%, -50%)" }}
+						gap={2}
+						sx={{
+							"@media (max-width: 600px)": {
+								width: "95%",
+								p: 2,
+							},
+							"@media (min-width: 601px) and (max-width: 960px)": {
+								width: "80%",
+								p: 3,
+							},
+							"@media (min-width: 961px)": {
+								width: "70%",
+								p: 4,
+							},
+						}}
+						//sx={{ transform: "translate (-50%, -50%)" }}
 					>
 						<Typography variant="h6">Add Item</Typography>
-						<Stack width="100%" height="100%" spacing={2}>
+						<Stack
+							width="100%"
+							height="100%"
+							spacing={2}
+							sx={{
+								"@media (max-width: 500px)": {
+									width: "75%",
+									p: 2,
+								},
+								"@media (max-width: 600px)": {
+									width: "95%",
+									p: 2,
+								},
+								"@media (min-width: 601px) and (max-width: 960px)": {
+									width: "80%",
+									p: 3,
+								},
+								"@media (min-width: 961px)": {
+									width: "100%",
+									p: 4,
+								},
+							}}
+						>
 							<TextField
 								label="Item"
 								variant="outlined"
@@ -267,8 +309,19 @@ export default function Profile() {
 						</Stack>
 					</Box>
 				</Modal>
-				<Stack width="800px" height="300px" spacing={3} overflow="auto">
-					<Typography variant="h4" textAlign="center" backgroundColor="#0F67B1">
+				<Stack
+					width="90%"
+					maxWidth="800px"
+					height="300px"
+					spacing={3}
+					overflow="auto"
+				>
+					<Typography
+						variant="h4"
+						textAlign="center"
+						backgroundColor="#0F67B1"
+						padding="15px"
+					>
 						Pantry Items
 					</Typography>
 					{pantry.map(({ name, category, quantity }) => (

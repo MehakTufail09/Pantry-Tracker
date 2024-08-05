@@ -15,6 +15,7 @@ export default function Welcome() {
 			alignItems="center"
 			flexDirection="column"
 			color="white"
+			padding="16px" 
 			sx={{
 				background: "linear-gradient(to right, #021526, #092635, #021526)",
 			}}
