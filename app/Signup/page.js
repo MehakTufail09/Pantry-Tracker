@@ -29,6 +29,9 @@ export default function SignUp() {
 		} catch (error) {
 			console.error("Error signing up: ", error);
 			setError("Failed to create account. Please try again.");
+			if (error.code === "auth/email-already-in-use") {
+				setError("Email is already in use. Please try another one.");
+			}
 		}
 	};
 	const handleSignin = async () => {
@@ -64,7 +67,6 @@ export default function SignUp() {
 				<Typography variant="h4" color="white" alignItems="center">
 					Sign Up
 				</Typography>
-
 				<TextField
 					label="Email"
 					variant="outlined"
@@ -113,7 +115,12 @@ export default function SignUp() {
 							borderColor: "white",
 						},
 					}}
-				/>
+				/>{" "}
+				{error && (
+					<Typography color="error" sx={{ mb: 2 }}>
+						{error}
+					</Typography>
+				)}
 				<Button variant="contained" onClick={handleSignUp}>
 					Sign Up
 				</Button>

@@ -3,8 +3,10 @@ import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
 import { auth } from "@/firebase";
 import { useState, useEffect } from "react";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { firestore } from "@/firebase";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import { where } from "firebase/firestore";
 
 import {
@@ -24,8 +26,7 @@ import {
 	Typography,
 	Stack,
 	Button,
-	theme,
-	breakpoints,
+	IconButton,
 } from "@mui/material";
 
 import ProtectedRoute from "../protectedRoute";
@@ -37,6 +38,24 @@ export default function Profile() {
 	const [itemName, setItemName] = useState("");
 	const [category, setCategory] = useState("");
 	const [quantity, setQuantity] = useState(1);
+	const [loading, setLoading] = useState(true);
+	const [user, setUser] = useState(null);
+	const router = useRouter();
+
+	useEffect(() => {
+		const auth = getAuth();
+		const unsubscribe = onAuthStateChanged(auth, (user) => {
+			if (user) {
+				setUser(user);
+				updateInventory(user.uid);
+			} else {
+				router.push("Signin"); // Redirect to login if user is not authenticated
+			}
+			setLoading(false);
+		});
+
+		return () => unsubscribe();
+	}, []);
 
 	const updateInventory = async () => {
 		const auth = getAuth();
@@ -52,6 +71,7 @@ export default function Profile() {
 			docs.forEach((doc) => {
 				const data = doc.data();
 				inventoryList.push({
+					id: doc.id,
 					name: doc.id.split("_")[1],
 					category: data.category,
 					quantity: data.quantity,
@@ -64,20 +84,30 @@ export default function Profile() {
 		}
 	};
 
-	const removeItem = async (item) => {
-		const docRef = doc(collection(firestore, "pantry"), item);
+	const deleteItem = async (id, name) => {
+		if (window.confirm(`Do you really want to delete ${name} ? `)) {
+			console.log(`Removing item with id: ${id}`);
+			const docRef = doc(collection(firestore, "pantry"), id);
+			await deleteDoc(docRef);
+			await updateInventory();
+		} else {
+			console.log("Item deletion canceled");
+		}
+	};
+	const removeItem = async (id) => {
+		const docRef = doc(collection(firestore, "pantry"), id);
 		const docSnap = await getDoc(docRef);
 		if (docSnap.exists()) {
 			const { quantity } = docSnap.data();
 			if (quantity === 1) {
 				await deleteDoc(docRef);
 			} else {
-				await setDoc(docRef, { quantity: quantity - 1 });
+				await setDoc(docRef, { ...docSnap.data(), quantity: quantity - 1 });
 			}
+		} else {
 		}
 		await updateInventory();
 	};
-
 	//add
 	const addItem = async (item, category, quantity) => {
 		const auth = getAuth();
@@ -108,19 +138,30 @@ export default function Profile() {
 		}
 		await updateInventory();
 	};
-	useEffect(() => {
-		updateInventory();
-	}, []);
 
 	const handleSignOut = async () => {
 		try {
 			await signOut(auth);
-			router.push("page1");
+			router.push("Signin");
 		} catch (error) {
 			console.error("Error signing out: ", error);
 		}
 	};
-
+	if (loading) {
+		return (
+			<Box
+				width="100vw"
+				height="100vh"
+				display="flex"
+				justifyContent="center"
+				alignItems="center"
+				bgcolor="#021526"
+				color="white"
+			>
+				<Typography variant="h4">Loading...</Typography>
+			</Box>
+		);
+	}
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
 
@@ -169,7 +210,7 @@ export default function Profile() {
 				<Modal open={open} onClose={handleClose}>
 					<Box
 						display="flex"
-						position="fixed"
+						position="absolute"
 						top="15%"
 						left="30%"
 						maxWidth="600px"
@@ -178,19 +219,18 @@ export default function Profile() {
 						color="white"
 						border="2px solid white"
 						boxShadow={24}
-						width="90%"
-						transform="translate (-50%, -50%)"
 						p={4}
 						padding="16px"
 						flexDirection="column"
+						flex="1"
 						gap={2}
 						sx={{
-							"@media (max-width: 600px)": {
-								width: "95%",
+							"@media (max-width: 500px)": {
+								width: "50%",
 								p: 2,
 							},
-							"@media (min-width: 601px) and (max-width: 960px)": {
-								width: "80%",
+							"@media (min-width: 501px) and (max-width: 960px)": {
+								width: "60%",
 								p: 3,
 							},
 							"@media (min-width: 961px)": {
@@ -207,14 +247,10 @@ export default function Profile() {
 							spacing={2}
 							sx={{
 								"@media (max-width: 500px)": {
-									width: "75%",
+									width: "90%",
 									p: 2,
 								},
-								"@media (max-width: 600px)": {
-									width: "95%",
-									p: 2,
-								},
-								"@media (min-width: 601px) and (max-width: 960px)": {
+								"@media (min-width: 501px) and (max-width: 960px)": {
 									width: "80%",
 									p: 3,
 								},
@@ -324,7 +360,7 @@ export default function Profile() {
 					>
 						Pantry Items
 					</Typography>
-					{pantry.map(({ name, category, quantity }) => (
+					{pantry.map(({ id, name, category, quantity }) => (
 						<Box
 							key={name}
 							width="100%"
@@ -364,6 +400,23 @@ export default function Profile() {
 							>
 								{quantity}
 							</Typography>
+							<Button
+								variant="contained"
+								direction="row"
+								spacing={3}
+								onClick={() => removeItem(id)}
+							>
+								-
+							</Button>
+							<IconButton
+								aria-label="delete"
+								color="secondary"
+								onClick={() => {
+									deleteItem(id, name);
+								}}
+							>
+								<DeleteIcon />
+							</IconButton>
 						</Box>
 					))}
 				</Stack>
